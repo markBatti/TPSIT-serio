@@ -11,8 +11,8 @@ int main(void) {
         exit(-1);
     }
     if (!ritorno1) {
-        sleep (1);
-        fprintf(stdout, "Sono il figlio\n");
+        fprintf(stdout, "Sono il figlio con pid %d\n",getpgid(ritorno1));
+        sleep (2);
         exit(0);
     }
     if (ritorno2 == -1) {
@@ -20,8 +20,8 @@ int main(void) {
         exit(-1);
     }
     if (!ritorno2) {
-        sleep (1);
-        fprintf(stdout, "Sono il figlio\n");
+        fprintf(stdout, "Sono il figlio con pid %d\n",getpgid(ritorno2));
+        sleep (2);
         exit(0);
     }
     if (ritorno3 == -1) {
@@ -29,11 +29,11 @@ int main(void) {
         exit(-1);
     }
     if (!ritorno3) {
-        sleep (1);
-        fprintf(stdout, "Sono il figlio\n");
+        fprintf(stdout, "Sono il figlio con pid %d\n",getpgid(ritorno3));
+        sleep (2);
         exit(0);
     }
-    printf("Sono il padre\n");
     wait(NULL);
+    printf("Sono il padre\n");
     return 0;
 }
