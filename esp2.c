@@ -5,51 +5,78 @@
 #include <string.h>
 #include <sys/wait.h>
 
-struct Messaggio{
+struct Messaggio {
     int cv;
-    char parolaM [100];
+    char parolaM[100];
 };
+
 int main() {
     int fd1[2];
     int fd2[2];
-    int cv= 0;
-    char parolai [100];
-    char parolaM [100];
+    char parolai[100];
 
-    printf("SCRIVI!!!! \n");
-    scanf("%s",parolai);
-    if(pipe(fd1) == -1){
-        fprintf(stderr, "Error pipe");
+    if (pipe(fd1) == -1) {
+        perror("Error pipe1");
         exit(-1);
     }
+    if (pipe(fd2) == -1) {
+        perror("Error pipe2");
+        exit(-1);
+    }
+
     pid_t ritorno = fork();
-    if (ritorno==-1){
+    if (ritorno == -1) {
         perror("Error fork");
         exit(-2);
     }
+
     if (!ritorno) {
-        close(fd1[0]);
-        for(int i=0;i<100;i++) {
-            if (parolai[i]=='a'||parolai[i]=='e'||parolai[i]=='i'||parolai[i]=='o'||parolai[i]=='u')
-                cv++;
-            parolaM[i]=toupper(parolai[i]);
+        close(fd1[1]);
+        close(fd2[0]);
+
+        char parolaf[100];
+        struct Messaggio m;
+        m.cv = 0;
+
+        int n = read(fd1[0], parolaf, sizeof(parolaf));
+        if (n == -1) {
+            perror("Error read figlio");
+            exit(-3);
         }
 
-        write(fd2[1], Messaggio, sizeof(cv));
-        close(fd1[1]);
-        exit(0);
+        for (int i = 0; i < n ; i++) {
+            m.parolaM[i] = toupper(parolaf[i]);
+            if (m.parolaM[i] == 'A' || m.parolaM[i] == 'E' || m.parolaM[i] == 'I' ||
+                m.parolaM[i] == 'O' || m.parolaM[i] == 'U')
+                m.cv++;
+        }
 
+        write(fd2[1], &m, sizeof(m));
+
+        close(fd1[0]);
+        close(fd2[1]);
+        exit(0);
     }
-    for(int i=0;i<10;i++) {
-        if (numeri[i]%2==!0)
-            sommad+=numeri[i];
+
+    close(fd1[0]);
+    close(fd2[1]);
+
+    printf("SCRIVI!!!! \n");
+    scanf("%s", parolai);
+
+    write(fd1[1], parolai, strlen(parolai) + 1);
+    close(fd1[1]);
+
+    struct Messaggio r;
+    int n = read(fd2[0], &r, sizeof(r));
+    if (n == -1) {
+        perror("Error read padre");
+        exit(-4);
     }
+    close(fd2[0]);
+
     wait(NULL);
 
-    int r = read(fd1[0], &sommap, sizeof(&sommap));
-
-    printf("Numeri pari %d\n",sommap);
-    close(fd1[0]);
-    printf("Numeri dispari %d\n",sommad);
-    printf("Numeri tutti %d\n",sommap+sommad);
+    printf("Maiuscolo %s\n", r.parolaM);
+    printf("Numero vocali %d\n", r.cv);
 }
