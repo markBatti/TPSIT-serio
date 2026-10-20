@@ -15,3 +15,5 @@ add_executable(es4 es4.c)
 add_executable(esp1 esp1.c)
 add_executable(esp2 esp2.c)
 add_executable(esp3 esp3.c)
+add_executable(es22 es22.cpp
+        es22.cpp)
