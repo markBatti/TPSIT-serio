@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -17,9 +18,18 @@ int main() {
 
     char buf[256];
     ssize_t n;
-    while ((n = read(fd, buf, sizeof(buf) - 1)) > 0) {
+    while (1) {
+        n = read(fd, buf, sizeof(buf) - 1);
+        if (n <= 0) break;
         buf[n] = '\0';
-        printf("[SERVER] %s", buf);
+
+        buf[strcspn(buf, "\n")] = 0;
+
+        if (strcmp(buf, "QUIT") == 0) {
+            printf("[SERVER] Ricevuto QUIT. Termino.\n");
+            break;
+        }
+        printf("[SERVER] Ricevuto: %s\n", buf);
     }
 
     close(fd);
